@@ -1,4 +1,4 @@
-# test-proj
+# Spring Boot RESTful example
 
 Simple Spring Boot RESTful app (Maven).
 
