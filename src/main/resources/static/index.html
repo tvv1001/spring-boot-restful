@@ -1,176 +1,323 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TestProj Frontend</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product CRUD API - Tester</title>
   <style>
-    :root{--bg:#f6f8fa;--muted:#6b7280;--accent:#2563eb;--success:#16a34a;--danger:#dc2626}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;max-width:880px;margin:32px auto;padding:18px}
-    header{display:flex;justify-content:space-between;align-items:center}
-    h1{margin:0;font-size:1.4rem}
-    .card{background:#fff;border:1px solid #e6e9ee;padding:16px;border-radius:8px;box-shadow:0 2px 6px rgba(16,24,40,0.03)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-    label{display:block;margin:8px 0 6px;font-weight:600;color:var(--muted)}
-    input[type=text]{width:100%;padding:8px;border:1px solid #dbe3f0;border-radius:6px}
-    button{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
-    button:disabled{opacity:.6;cursor:default}
-    pre{background:var(--bg);padding:12px;border-radius:6px;overflow:auto}
-    .alerts{margin-top:12px}
-    .alert{padding:8px 12px;border-radius:6px;margin-bottom:8px;color:#fff}
-    .alert.success{background:var(--success)}
-    .alert.error{background:var(--danger)}
-    .small{font-size:0.9rem;color:var(--muted)}
-    @media(max-width:800px){.grid{grid-template-columns:1fr}}
+    :root {
+      --primary: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --muted: #6b7280;
+      --bg: #f6f8fa;
+      --border: #e5e7eb;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: #1f2937;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    header {
+      background: white;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 0.5rem; }
+    header p { color: var(--muted); }
+
+    .info-box {
+      background-color: #dbeafe;
+      border: 1px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      color: #0c4a6e;
+    }
+
+    .endpoint {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .endpoint-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+
+    .method-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+      letter-spacing: 0.5px;
+    }
+
+    .method-get { background-color: #3b82f6; }
+    .method-post { background-color: #10b981; }
+    .method-put { background-color: #f59e0b; }
+    .method-delete { background-color: #ef4444; }
+
+    .endpoint-path { font-family: 'Monaco', monospace; font-size: 1rem; font-weight: 600; }
+    .endpoint-description { color: var(--muted); margin-bottom: 1rem; font-size: 0.95rem; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.875rem; }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+
+    .button-group { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background-color: #1d4ed8; }
+    .btn-primary:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+    .response-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: none; }
+    .response-section h4 { margin-bottom: 1rem; }
+
+    .response-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .status-2xx { background-color: #dcfce7; color: #166534; }
+    .status-4xx { background-color: #fef3c7; color: #92400e; }
+    .status-5xx { background-color: #fee2e2; color: #991b1b; }
+
+    pre {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: 'Monaco', monospace;
+      font-size: 0.875rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      border: 1px solid;
+    }
+
+    .alert-warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border-color: #fcd34d;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <header>
-    <h1>TestProj API Demo</h1>
-    <div class="small">Static frontend consuming <code>/api/hello</code> and <code>/api/echo</code></div>
+    <div class="container">
+      <h1>🔌 Product CRUD API</h1>
+      <p>Interactive API Testing & Documentation</p>
+    </div>
   </header>
 
-  <div class="grid">
-    <div class="card">
-      <h2 style="margin-top:0">GET /api/hello</h2>
-      <button id="btnHello">Call Hello</button>
-      <div class="alerts" id="helloAlerts"></div>
-      <h3>Response</h3>
-      <pre id="helloResp">(no response yet)</pre>
+  <div class="container">
+    <div class="info-box">
+      ℹ️ For the React-based product manager, visit <a href="http://localhost:3000" target="_blank" style="color: var(--primary); font-weight: 600;">http://localhost:3000</a>
     </div>
-
-    <div class="card">
-      <h2 style="margin-top:0">POST /api/echo</h2>
-      <label for="name">Name</label>
-      <input id="name" type="text" value="Alice" required />
-      <label for="message">Message</label>
-      <input id="message" type="text" value="Hello" required />
-      <div style="margin-top:12px">
-        <button id="btnEcho">Send Echo</button>
-      </div>
-      <div class="alerts" id="echoAlerts"></div>
-      <h3>Response</h3>
-      <pre id="echoResp">(no response yet)</pre>
-    </div>
-
-    <div class="card">
-      <h2 style="margin-top:0">Recent Messages</h2>
-      <div class="small">Stored in your browser (localStorage). <button id="clearHistory" style="margin-left:8px;padding:4px 8px;border-radius:6px">Clear</button></div>
-      <div id="historyContainer" style="margin-top:12px">
-        <ol id="historyList" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px"></ol>
-      </div>
-    </div>
+    <div id="endpoints-container"></div>
   </div>
 
   <script>
-    const helloBtn = document.getElementById('btnHello');
-    const echoBtn = document.getElementById('btnEcho');
-    const helloResp = document.getElementById('helloResp');
-    const echoResp = document.getElementById('echoResp');
-    const helloAlerts = document.getElementById('helloAlerts');
-    const echoAlerts = document.getElementById('echoAlerts');
+    const endpoints = [
+      { method: 'POST', path: '/api/products', desc: 'Create a new product', fields: [
+        { name: 'name', label: 'Name', type: 'text', example: 'Laptop' },
+        { name: 'price', label: 'Price', type: 'number', example: '999.99' },
+        { name: 'quantity', label: 'Quantity', type: 'number', example: '5' },
+        { name: 'description', label: 'Description', type: 'textarea', example: 'Cool laptop' }
+      ] },
+      { method: 'GET', path: '/api/products', desc: 'Get all products', fields: [] },
+      { method: 'GET', path: '/api/products/{id}', desc: 'Get product by ID', fields: [
+        { name: 'id', label: 'Product ID', type: 'number', example: '1' }
+      ] },
+      { method: 'GET', path: '/api/products/search/name', desc: 'Search by name', fields: [
+        { name: 'name', label: 'Search term', type: 'text', example: 'Laptop' }
+      ], isQuery: true },
+      { method: 'GET', path: '/api/products/search/price', desc: 'Get products under price', fields: [
+        { name: 'maxPrice', label: 'Max price', type: 'number', example: '500' }
+      ], isQuery: true },
+      { method: 'GET', path: '/api/products/search/productId', desc: 'Search by productId', fields: [
+        { name: 'productId', label: 'Product ID', type: 'number', example: '1771548155414' }
+      ], isQuery: true },
+      { method: 'PUT', path: '/api/products/{id}', desc: 'Update product', fields: [
+        { name: 'id', label: 'Product ID', type: 'number', example: '1' },
+        { name: 'name', label: 'Name', type: 'text', example: 'Updated Laptop' },
+        { name: 'price', label: 'Price', type: 'number', example: '1099.99' },
+        { name: 'quantity', label: 'Quantity', type: 'number', example: '3' },
+        { name: 'description', label: 'Description', type: 'textarea', example: 'Updated' }
+      ] },
+      { method: 'DELETE', path: '/api/products/{id}', desc: 'Delete product', fields: [
+        { name: 'id', label: 'Product ID', type: 'number', example: '1' }
+      ] },
+      { method: 'DELETE', path: '/api/products', desc: 'Delete all products', fields: [], warning: 'This deletes everything!' }
+    ];
 
-    function showAlert(container, type, text){
-      container.innerHTML = '';
-      const div = document.createElement('div');
-      div.className = 'alert ' + (type === 'success' ? 'success' : 'error');
-      div.textContent = text;
-      container.appendChild(div);
-      setTimeout(()=>{ if(container.contains(div)) container.removeChild(div); }, 4000);
-    }
-
-    // --- persistent history utilities ---
-    const HISTORY_KEY = 'echoHistory';
-    function loadHistory(){
-      try{
-        const raw = localStorage.getItem(HISTORY_KEY);
-        return raw ? JSON.parse(raw) : [];
-      }catch(e){ return []; }
-    }
-    function saveHistory(arr){
-      try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); }catch(e){/*ignore*/}
-    }
-    function renderHistory(){
-      const list = document.getElementById('historyList');
-      list.innerHTML = '';
-      const items = loadHistory();
-      items.slice().reverse().forEach(item=>{ // show newest first
-        const li = document.createElement('li');
-        li.style.padding = '8px';
-        li.style.border = '1px solid #eaeef6';
-        li.style.borderRadius = '6px';
-        li.style.background = '#fff';
-        li.style.opacity = '0';
-        li.style.transform = 'translateY(6px)';
-        li.style.transition = 'opacity .22s ease, transform .22s ease';
-        li.innerHTML = `<div style="font-weight:700;margin-bottom:4px">${escapeHtml(item.name)} <span style=\"color:var(--muted);font-weight:400;margin-left:8px;font-size:0.9rem\">${new Date(item.ts).toLocaleString()}</span></div><div>${escapeHtml(item.message)}</div>`;
-        list.appendChild(li);
-        requestAnimationFrame(()=>{ li.style.opacity='1'; li.style.transform='translateY(0)'; });
-      });
-    }
-    function pushHistory(entry){
-      const arr = loadHistory();
-      arr.push(entry);
-      // cap history to 50
-      if(arr.length > 50) arr.splice(0, arr.length - 50);
-      saveHistory(arr);
-      renderHistory();
-    }
-    function clearHistory(){ localStorage.removeItem(HISTORY_KEY); renderHistory(); }
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    async function callHello(){
-      helloBtn.disabled = true;
-      helloResp.textContent = '...loading';
-      helloAlerts.innerHTML = '';
-      try{
-        const res = await fetch('/api/hello');
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const json = await res.json();
-        helloResp.textContent = JSON.stringify(json, null, 2);
-        showAlert(helloAlerts, 'success', 'Hello fetched successfully');
-      }catch(e){
-        helloResp.textContent = 'Error: '+e.message;
-        showAlert(helloAlerts, 'error', 'Failed to fetch hello: '+e.message);
-      }finally{ helloBtn.disabled = false; }
+    function getColor(method) {
+      return { 'GET': 'method-get', 'POST': 'method-post', 'PUT': 'method-put', 'DELETE': 'method-delete' }[method] || 'method-get';
     }
 
-    async function callEcho(){
-      echoBtn.disabled = true;
-      echoResp.textContent = '...loading';
-      echoAlerts.innerHTML = '';
-      const name = document.getElementById('name').value.trim();
-      const message = document.getElementById('message').value.trim();
-      if(!name || !message){
-        showAlert(echoAlerts, 'error', 'Please provide both name and message.');
-        echoResp.textContent = '(validation failed)';
-        echoBtn.disabled = false;
-        return;
+    document.getElementById('endpoints-container').innerHTML = endpoints.map((ep, idx) => `
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method-badge ${getColor(ep.method)}">${ep.method}</span>
+          <span class="endpoint-path">${ep.path}</span>
+        </div>
+        <div class="endpoint-description">${ep.desc}</div>
+        ${ep.warning ? `<div class="alert alert-warning">⚠️ ${ep.warning}</div>` : ''}
+        <div>
+          ${ep.fields.map(f => `
+            <div class="form-group">
+              <label>${f.label}</label>
+              <input type="${f.type}" name="field-${idx}-${f.name}" placeholder="${f.example}" />
+            </div>
+          `).join('')}
+        </div>
+        <div class="button-group">
+          <button class="btn-primary" onclick="test(${idx})">Test</button>
+        </div>
+        <div class="response-section">
+          <div class="response-header">
+            <h4>Response</h4>
+            <span class="status-badge" style="display:none;"></span>
+          </div>
+          <pre></pre>
+        </div>
+      </div>
+    `).join('');
+
+    async function test(idx) {
+      const ep = endpoints[idx];
+      const div = document.querySelectorAll('.endpoint')[idx];
+      const resDiv = div.querySelector('.response-section');
+      const pre = div.querySelector('pre');
+      const badge = div.querySelector('.status-badge');
+      const btn = div.querySelector('button');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading"></span> Testing...';
+      resDiv.style.display = 'block';
+      pre.textContent = 'Loading...';
+
+      try {
+        let url = ep.path;
+        let opts = { method: ep.method, headers: { 'Content-Type': 'application/json' } };
+
+        if (ep.method === 'GET') {
+          if (ep.isQuery) {
+            const params = new URLSearchParams();
+            ep.fields.forEach(f => {
+              const val = document.querySelector(`[name="field-${idx}-${f.name}"]`).value;
+              if (val) params.append(f.name, val);
+            });
+            if (params.toString()) url += '?' + params.toString();
+          } else if (ep.path.includes('{id}')) {
+            const id = document.querySelector(`[name="field-${idx}-id"]`).value;
+            if (id) {
+              url = ep.path.replace('{id}', id);
+            } else {
+              throw new Error('Please enter an ID');
+            }
+          }
+        } else {
+          const body = {};
+          ep.fields.forEach(f => {
+            if (f.name !== 'id') {
+              const val = document.querySelector(`[name="field-${idx}-${f.name}"]`).value;
+              if (val) body[f.name] = isNaN(val) ? val : parseFloat(val);
+            }
+          });
+          if (ep.path.includes('{id}')) {
+            const id = document.querySelector(`[name="field-${idx}-id"]`).value;
+            if (id) {
+              url = ep.path.replace('{id}', id);
+            } else {
+              throw new Error('Please enter an ID');
+            }
+          }
+          opts.body = JSON.stringify(body);
+        }
+
+        const res = await fetch(url, opts);
+        const statusClass = res.status < 300 ? 'status-2xx' : res.status < 400 ? 'status-4xx' : 'status-5xx';
+        badge.textContent = res.status + ' ' + res.statusText;
+        badge.className = 'status-badge ' + statusClass;
+        badge.style.display = 'inline-block';
+
+        const contentType = res.headers.get('content-type');
+        const data = contentType && contentType.includes('json') ? await res.json() : await res.text();
+        pre.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+      } catch (e) {
+        badge.textContent = 'Error';
+        badge.className = 'status-badge status-5xx';
+        badge.style.display = 'inline-block';
+        pre.textContent = 'Error: ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Test';
       }
-      try{
-        const body = { name, message };
-        const res = await fetch('/api/echo', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        if(!res.ok) throw new Error('HTTP ' + res.status);
-        const json = await res.json();
-        echoResp.textContent = JSON.stringify(json, null, 2);
-        showAlert(echoAlerts, 'success', 'Echo sent successfully');
-        // store in local history
-        pushHistory({ name: body.name, message: body.message, ts: Date.now() });
-      }catch(e){
-        echoResp.textContent = 'Error: '+e.message;
-        showAlert(echoAlerts, 'error', 'Failed to send echo: '+e.message);
-      }finally{ echoBtn.disabled = false; }
     }
-
-    helloBtn.addEventListener('click', callHello);
-    echoBtn.addEventListener('click', callEcho);
-    document.getElementById('clearHistory').addEventListener('click', ()=>{ clearHistory(); showAlert(echoAlerts,'success','History cleared'); });
-    // render existing history on load
-    renderHistory();
   </script>
 </body>
 </html>
